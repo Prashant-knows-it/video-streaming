@@ -3,13 +3,7 @@ package com.example.VideoService.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.VideoService.model.Video;
@@ -26,29 +20,30 @@ public class VideoController {
 
     @PostMapping
     public ResponseEntity<String> uploadVideo(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam MultipartFile file,
             @RequestParam String title,
-            @RequestParam String description,
-            @RequestParam String tags,
-            @RequestParam String status,
-            @RequestHeader("Authorization") String token
-    ) {
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String tags,
+            @RequestParam(defaultValue = "PUBLIC") String status,
+            @RequestHeader("Authorization") String token) {
         videoService.saveVideo(file, title, description, tags, status, token);
         return ResponseEntity.ok("Video uploaded successfully");
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideoById(@PathVariable Long id) {
-        return ResponseEntity.of(videoService.getVideoById(id));
+        return videoService.getVideoById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/uploader/{uploaderId}")
-    public List<Video> getVideosByUploader(@PathVariable Long uploaderId) {
-        return videoService.getVideosByUploader(uploaderId);
+    public ResponseEntity<List<Video>> getVideosByUploader(@PathVariable Long uploaderId) {
+        return ResponseEntity.ok(videoService.getVideosByUploader(uploaderId));
     }
 
     @GetMapping("/public")
-    public List<Video> getPublicVideos() {
-        return videoService.getAllPublicVideos();
+    public ResponseEntity<List<Video>> getPublicVideos() {
+        return ResponseEntity.ok(videoService.getAllPublicVideos());
     }
 }

@@ -2,11 +2,8 @@ package com.example.VideoService.model;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,13 +18,25 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
     private String title;
+
     private String description;
-    private String videoPath; // local storage path
+
+    @NotBlank(message = "Video path is required")
+    private String videoPath;
+
     private String thumbnailPath;
-    private String tags; // comma-separated for now
-    private String status; // PUBLIC / PRIVATE
+
+    private String tags;
+
+    @Column(nullable = false)
+    private String status = "PUBLIC"; // default value
+
+    @Column(nullable = false)
     private Long uploaderId;
+
     private LocalDateTime uploadDate;
+
     private Long durationInSeconds;
 }

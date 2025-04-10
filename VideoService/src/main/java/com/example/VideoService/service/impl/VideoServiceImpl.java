@@ -1,19 +1,14 @@
 package com.example.VideoService.service.impl;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.VideoService.dto.UserDto;
+import com.example.VideoService.dto.AuthenticatedUserDto;
 import com.example.VideoService.feign.AuthClient;
 import com.example.VideoService.model.Video;
 import com.example.VideoService.repository.VideoRepository;
@@ -32,16 +27,16 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public void saveVideo(MultipartFile file, String title, String desc, String tags, String status, String token) {
         try {
-            if (!Files.exists(storagePath)) Files.createDirectories(storagePath);
+            Files.createDirectories(storagePath);
 
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String originalName = file.getOriginalFilename();
+            String sanitizedName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+            String filename = "vid_" + System.currentTimeMillis() + "_" + sanitizedName;
+
             Path targetPath = storagePath.resolve(filename);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            UserDto user = authClient.getCurrentUser(token);
-            //UserDto user = new UserDto(); //
-            //user.setId(1L); //
-            Long uploaderId = user.getId();
+            Long uploaderId = authClient.getCurrentUser(token).id();
 
             Video video = new Video(null, title, desc, targetPath.toString(), null, tags, status,
                     uploaderId, LocalDateTime.now(), null);
