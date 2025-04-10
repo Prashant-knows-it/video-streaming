@@ -39,4 +39,5 @@ public class Video {
     private LocalDateTime uploadDate;
 
     private Long durationInSeconds;
+
 }
