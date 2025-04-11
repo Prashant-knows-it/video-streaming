@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.example.VideoService.helper.VideoUtils;
+import com.example.VideoService.kafka.dto.VideoProcessingRequest;
+import com.example.VideoService.kafka.producer.VideoProcessingProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,8 @@ public class VideoServiceImpl implements VideoService {
 
     private final VideoRepository videoRepository;
     private final AuthClient authClient;
+    private final VideoProcessingProducer videoProcessingProducer;
+
 
     private static String generateVideoId() {
         return Base64.getUrlEncoder()
@@ -87,7 +91,13 @@ public class VideoServiceImpl implements VideoService {
 
             videoRepository.save(video);
 
-            // Note: HLS transcoding will be handled by a separate microservice using the hlsDir
+            // Triggers Kafka
+            VideoProcessingRequest request = new VideoProcessingRequest(
+                    videoId,
+                    finalVideoPath.toString(),
+                    hlsDir.toString()
+            );
+            videoProcessingProducer.send(request);
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to save video", e);
