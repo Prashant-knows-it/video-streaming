@@ -1,12 +1,9 @@
 package com.example.VideoService.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
@@ -15,8 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "videos")
 public class Video {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @NotBlank(message = "Title is required")
     private String title;
@@ -31,7 +27,7 @@ public class Video {
     private String tags;
 
     @Column(nullable = false)
-    private String status = "PUBLIC"; // default value
+    private String status = "PUBLIC";
 
     @Column(nullable = false)
     private Long uploaderId;
@@ -39,5 +35,4 @@ public class Video {
     private LocalDateTime uploadDate;
 
     private Long durationInSeconds;
-
 }

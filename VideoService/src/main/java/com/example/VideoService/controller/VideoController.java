@@ -31,7 +31,7 @@ public class VideoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Video> getVideoById(@PathVariable Long id) {
+    public ResponseEntity<Video> getVideoById(@PathVariable String id) {
         return videoService.getVideoById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
