@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="'Stream: ' + ${videoId}">Video Stream</title>
+  <style>
+    #video {
+      width: 640px;
+      height: 360px;
+    }
+    #error-message {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<video id="video" controls></video>
+<div id="error-message" style="display:none;">Error loading video. Please try again later.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script th:inline="javascript">
+  const video = document.getElementById('video');
+  const videoId = [[${videoId}]];
+  const masterPlaylistUrl = `/stream/${videoId}/master.m3u8`;
+
+  const errorMessage = document.getElementById('error-message');
+
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(masterPlaylistUrl);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      if (data.fatal) {
+        errorMessage.style.display = 'block';
+        video.style.display = 'none';
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = masterPlaylistUrl;
+  } else {
+    errorMessage.style.display = 'block';
+    video.style.display = 'none';
+  }
+</script>
+</body>
+</html>
